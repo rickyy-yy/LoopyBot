@@ -123,6 +123,16 @@ Loops the current song if it is not looped, else vice versa. Currently, there is
 <b>Aliases</b>: !lp, !looped, !track
 
 ## Screenshots
+<img src="images/user_not_in_channel.png" width="900">
+<img src="images/play_command.png" width="900">
+<img src="images/queue_song_title.png" width="900">
+<img src="images/queue_song_url.png" width="900">
+<img src="images/queue.png" width="900">
+<img src="images/loop.png" width="900">
+<img src="images/jump.png" width="900">
+<img src="images/inactive.png" width="900">
+<img src="images/clear.png" width="900">
+<img src="images/disconnect.png" width="900">
 
 ## License
 
