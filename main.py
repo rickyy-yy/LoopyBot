@@ -79,7 +79,7 @@ async def on_wavelink_track_end(payload: wavelink.TrackEndEventPayload):  # Runs
     if track_looped:  # If the track is looped, it gets and replays the current song from the player.
         current_song = payload.track
         await bot_vc.play(current_song)
-        now_playing = discord.Embed(title="**Now Playing**", description=f"**{current_song.title}** by **{current_song.author}**", color=0x9999FF)
+        now_playing = discord.Embed(title="**:arrow_forward: Now Playing**", description=f"**{current_song.title}** by **{current_song.author}**", color=0x9999FF)
 
         await channel.send(embed=now_playing)
     elif current_queue:  # Else, it checks if there is a song in queue.
@@ -87,7 +87,7 @@ async def on_wavelink_track_end(payload: wavelink.TrackEndEventPayload):  # Runs
             next_song = current_queue.get()  # If no, it plays the next song
             await bot_vc.play(next_song)
 
-            now_playing = discord.Embed(title="**Now Playing**", description=f"**{next_song.title}** by **{next_song.author}**", color=0x9999FF)
+            now_playing = discord.Embed(title="**:arrow_forward: Now Playing**", description=f"**{next_song.title}** by **{next_song.author}**", color=0x9999FF)
             await channel.send(embed=now_playing)
     elif not current_queue and not (cleared or backed or played or jumped):  # If the queue is empty and no clear, back, play or jump command was run, send an embed to tell the user the queue is empty
         await channel.send(embed=end_of_queue)
@@ -107,11 +107,12 @@ async def play(ctx, *, search_query: str = None):  # !play command, plays a song
     global played
     global last_channel
     last_channel = ctx.message.channel.id  # Updates the last channel a command was sent
-    if search_query is None:  # If user didn't provide a song, ask them for one.
-        await ctx.send(embed=enter_song)
-    else:
-        in_channel = await check_user_in_vc(ctx)
-        if in_channel:  # Checks if the user is in a voice channel
+
+    in_channel = await check_user_in_vc(ctx)
+    if in_channel:  # Checks if the user is in a voice channel
+        if search_query is None:
+            await ctx.send(embed=enter_song)
+        else:
             if not ctx.guild.voice_client:  # If user is connected but bot is not, make bot join the user's channel
                 await ctx.author.voice.channel.connect(cls=wavelink.Player)
                 bot_vc: wavelink.Player() = ctx.voice_client
@@ -119,7 +120,7 @@ async def play(ctx, *, search_query: str = None):  # !play command, plays a song
 
                 search: wavelink.Search = await wavelink.Playable.search(search_query)  # Searches for a track using user's input and Lavalink
                 await bot_vc.play(track=search[0])  # Plays the track
-                now_playing = discord.Embed(title="**Now Playing**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
+                now_playing = discord.Embed(title="**:arrow_forward: Now Playing**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
                 await ctx.send(embed=now_playing)  # Sends the relevant embed
             elif await user_bot_same_channel(ctx):
                 played = True
@@ -127,7 +128,7 @@ async def play(ctx, *, search_query: str = None):  # !play command, plays a song
                 search: wavelink.Search = await wavelink.Playable.search(search_query)
                 await bot_vc.play(track=search[0])
 
-                now_playing = discord.Embed(title="**Now Playing**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
+                now_playing = discord.Embed(title="**:arrow_forward: Now Playing**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
                 await ctx.send(embed=now_playing)
                 played = False
             else:
@@ -153,14 +154,14 @@ async def queue(ctx, *, search_query: str = None):  # !queue command. Adds a son
 
                 search: wavelink.Search = await wavelink.Playable.search(search_query)
                 await bot_vc.play(track=search[0])
-                now_playing = discord.Embed(title="**Now Playing**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
+                now_playing = discord.Embed(title="**:arrow_forward: Now Playing**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
                 await ctx.send(embed=now_playing)
         elif await user_bot_same_channel(ctx):
             current_queue: wavelink.Queue() = bot_vc.queue
             if search_query is None:
                 if not current_queue.is_empty:
                     index = 0
-                    queue_list = discord.Embed(title="**Songs in Queue**", description="Here are the first 10 songs that are currently in queue:")
+                    queue_list = discord.Embed(title="**:inbox_tray: Songs in Queue**", description="Here are the first 10 songs that are currently in queue:")
                     if len(current_queue) < 10:  # If the queue has less than 10 songs in it, display all of them in order.
                         for i in current_queue:  # An iteration to add a new line to the embed for each song in queue.
                             queue_list.add_field(name='', value=f"{index+1}. **{current_queue.peek(index).title}** by **{current_queue.peek(index).author}**", inline=False)
@@ -176,12 +177,12 @@ async def queue(ctx, *, search_query: str = None):  # !queue command. Adds a son
                 if bot_vc.playing or bot_vc.paused:
                     search: wavelink.Search = await wavelink.Playable.search(search_query)
                     current_queue.put(search[0])
-                    queued = discord.Embed(title="**Added to Queue**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
+                    queued = discord.Embed(title="**:inbox_tray: Added to Queue**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
                     await ctx.send(embed=queued)
                 else:  # If no song is playing or paused, and the queue is empty, the command behaves like !play
                     search: wavelink.Search = await wavelink.Playable.search(search_query)
                     await bot_vc.play(search[0])
-                    now_playing = discord.Embed(title="**Now Playing**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
+                    now_playing = discord.Embed(title="**:arrow_forward: Now Playing**", description=f"**{search[0].title}** by **{search[0].author}**", color=0x9999FF)
                     await ctx.send(embed=now_playing)
         else:
             await ctx.send(embed=user_bot_channel)
@@ -287,7 +288,7 @@ async def jump(ctx, position: int = None):  # Deletes songs in queue before the 
                         new_song = current_queue.get()  # Gets and plays the next song
                         jumped = True
                         await bot_vc.play(new_song)
-                        now_playing = discord.Embed(title="**Jumping To Song**", description=f"**{new_song.title}** by **{new_song.author}**", color=0x9999FF)
+                        now_playing = discord.Embed(title="**:arrow_forward: Jumping To Song**", description=f"**{new_song.title}** by **{new_song.author}**", color=0x9999FF)
                         await ctx.send(embed=now_playing)
                         jumped = False
             else:
@@ -366,7 +367,7 @@ async def back(ctx):  # Plays the last played song and puts the current song bac
                     current_queue.put_at(0, current_track)
                 await bot_vc.play(back_track)
 
-                now_playing = discord.Embed(title="**Now Playing Last Song**", description=f"**{back_track.title}** by **{back_track.author}**", color=0x9999FF)
+                now_playing = discord.Embed(title="**:arrow_forward: Now Playing Last Song**", description=f"**{back_track.title}** by **{back_track.author}**", color=0x9999FF)
                 await ctx.send(embed=now_playing)
                 backed = False
         else:
@@ -386,7 +387,7 @@ async def loop(ctx):  # Loops the track if it is not looped and vice versa
         elif ctx.author.voice.channel == ctx.guild.voice_client.channel:
             if not track_looped:
                 track_looped = True
-                await ctx.send(embed=loop_track)
+                await ctx.send(embed=loop_successful)
             else:
                 track_looped = False
                 await ctx.send(embed=unloop_successful)
