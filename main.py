@@ -23,7 +23,7 @@ track_looped: bool = False  # Variable to store if the track is looped or not
 
 async def node_connect():  # Waits for the bot to get ready, then connects to a Lavalink node
     await bot.wait_until_ready()  # Wait until the bot is ready
-    nodes = [wavelink.Node(identifier='Free Node', uri='https://lavalink4.alfari.id', password='catfein')]  # Free public node
+    nodes = [wavelink.Node(identifier='Public Lavalink v4', uri='https://lava-v4.ajieblogs.eu.org', password='https://dsc.gg/ajidevserver')]  # Free public node
     await wavelink.Pool.connect(nodes=nodes, client=bot)  # Connects to the node
 
 
@@ -425,4 +425,4 @@ async def help(ctx):  # The help command that lists all possible commands
 
 
 if __name__ == '__main__':
-    bot.run('BOTTOKEN')
+    bot.run('MTM0NDY3OTkzNzg5ODE4NDgxNA.Gj9BiS.bIvNAE5psWvTX_-jJAcF0ID_35iSxRKVD0_TOM')
